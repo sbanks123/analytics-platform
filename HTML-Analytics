@@ -1,0 +1,1109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Social Analytics Platform</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<style>
+:root {
+  --bg: #0D0E13;
+  --sidebar: #111318;
+  --surface: #181B22;
+  --surface2: #1F232D;
+  --border: rgba(255,255,255,0.07);
+  --border2: rgba(255,255,255,0.12);
+  --red: #E8212A;
+  --red2: #FF4B52;
+  --red-glow: rgba(232,33,42,0.18);
+  --text: #F0F2F7;
+  --text2: #8A8FA8;
+  --text3: #555A6E;
+  --green: #22C78A;
+  --amber: #F5A623;
+  --blue: #4A9EF5;
+  --purple: #9B7FE8;
+  --radius: 10px;
+  --radius-lg: 14px;
+}
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html, body { height: 100%; overflow: hidden; }
+body {
+  font-family: 'DM Sans', sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+/* ── LOGIN ───────────────────────────────────── */
+#login-screen {
+  position: fixed; inset: 0; z-index: 100;
+  background: var(--bg);
+  display: flex; align-items: center; justify-content: center;
+  flex-direction: column;
+}
+.login-card {
+  background: var(--surface);
+  border: 1px solid var(--border2);
+  border-radius: 20px;
+  padding: 44px 48px;
+  width: 400px;
+  box-shadow: 0 0 80px rgba(232,33,42,0.08);
+}
+.login-logo { display: flex; align-items: center; gap: 10px; margin-bottom: 32px; }
+.login-logo-icon {
+  width: 40px; height: 40px; background: var(--red);
+  border-radius: 10px; display: flex; align-items: center; justify-content: center;
+  font-family: 'Space Grotesk', sans-serif; font-weight: 700; font-size: 16px; color: #fff;
+}
+.login-logo-text { font-family: 'Space Grotesk', sans-serif; font-size: 15px; font-weight: 600; color: var(--text); line-height: 1.2; }
+.login-logo-sub { font-size: 11px; color: var(--text2); font-weight: 400; }
+.login-title { font-family: 'Space Grotesk', sans-serif; font-size: 24px; font-weight: 600; margin-bottom: 6px; }
+.login-sub { font-size: 13px; color: var(--text2); margin-bottom: 28px; }
+.form-group { margin-bottom: 14px; }
+.form-label { font-size: 12px; font-weight: 500; color: var(--text2); margin-bottom: 6px; display: block; }
+.form-input {
+  width: 100%; background: var(--surface2); border: 1px solid var(--border2);
+  border-radius: 8px; padding: 10px 14px; color: var(--text); font-size: 14px;
+  font-family: 'DM Sans', sans-serif; outline: none; transition: border-color .2s;
+}
+.form-input:focus { border-color: var(--red); }
+.btn-login {
+  width: 100%; background: var(--red); border: none; border-radius: 8px;
+  padding: 12px; color: #fff; font-size: 14px; font-weight: 600;
+  font-family: 'DM Sans', sans-serif; cursor: pointer; margin-top: 8px;
+  transition: background .2s, transform .1s;
+}
+.btn-login:hover { background: var(--red2); }
+.btn-login:active { transform: scale(0.99); }
+.login-footer { text-align: center; margin-top: 20px; font-size: 12px; color: var(--text3); }
+.login-footer a { color: var(--red); text-decoration: none; }
+
+/* ── APP SHELL ──────────────────────────────── */
+#app { display: none; height: 100vh; overflow: hidden; flex-direction: column; }
+#app.visible { display: flex; }
+
+/* ── TOP BAR ────────────────────────────────── */
+.topbar {
+  height: 58px; background: var(--sidebar);
+  border-bottom: 1px solid var(--border);
+  display: flex; align-items: center; padding: 0 20px;
+  gap: 16px; flex-shrink: 0; z-index: 10;
+}
+.topbar-logo { display: flex; align-items: center; gap: 10px; width: 220px; }
+.topbar-logo-icon {
+  width: 30px; height: 30px; background: var(--red);
+  border-radius: 7px; display: flex; align-items: center; justify-content: center;
+  font-family: 'Space Grotesk', sans-serif; font-weight: 700; font-size: 12px; color: #fff;
+}
+.topbar-logo-name { font-family: 'Space Grotesk', sans-serif; font-size: 13px; font-weight: 600; }
+.topbar-logo-name span { color: var(--red); }
+.topbar-divider { width: 1px; height: 28px; background: var(--border); }
+.client-switcher {
+  display: flex; align-items: center; gap: 8px;
+  background: var(--surface2); border: 1px solid var(--border2);
+  border-radius: 8px; padding: 6px 12px; cursor: pointer; transition: border-color .2s;
+}
+.client-switcher:hover { border-color: var(--red); }
+.client-avatar {
+  width: 22px; height: 22px; border-radius: 5px;
+  background: var(--red); display: flex; align-items: center; justify-content: center;
+  font-size: 10px; font-weight: 600; color: #fff;
+}
+.client-name { font-size: 13px; font-weight: 500; }
+.client-arrow { color: var(--text2); font-size: 10px; }
+.topbar-spacer { flex: 1; }
+.topbar-badge {
+  background: var(--surface2); border: 1px solid var(--border);
+  border-radius: 8px; padding: 5px 12px; font-size: 12px; color: var(--text2);
+  display: flex; align-items: center; gap: 6px;
+}
+.pulse { width: 7px; height: 7px; border-radius: 50%; background: var(--green); position: relative; }
+.pulse::after {
+  content: ''; position: absolute; inset: -3px; border-radius: 50%;
+  border: 1.5px solid var(--green); opacity: 0.5;
+  animation: pulse 2s ease-in-out infinite;
+}
+@keyframes pulse { 0%,100%{ transform: scale(1); opacity:.5 } 50%{ transform: scale(1.5); opacity:0 } }
+.topbar-avatar {
+  width: 32px; height: 32px; border-radius: 8px;
+  background: linear-gradient(135deg, var(--red), #7B0010);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 13px; font-weight: 600; cursor: pointer;
+}
+
+/* ── BODY ───────────────────────────────────── */
+.app-body { display: flex; flex: 1; overflow: hidden; }
+
+/* ── SIDEBAR ────────────────────────────────── */
+.sidebar {
+  width: 220px; background: var(--sidebar);
+  border-right: 1px solid var(--border);
+  display: flex; flex-direction: column;
+  padding: 16px 0; overflow-y: auto; flex-shrink: 0;
+}
+.sidebar-section { padding: 0 12px; margin-bottom: 24px; }
+.sidebar-label {
+  font-size: 10px; font-weight: 600; letter-spacing: .08em;
+  color: var(--text3); text-transform: uppercase;
+  padding: 0 6px; margin-bottom: 6px;
+}
+.nav-item {
+  display: flex; align-items: center; gap: 10px;
+  padding: 8px 10px; border-radius: 8px; cursor: pointer;
+  color: var(--text2); font-size: 13px; font-weight: 500;
+  transition: all .15s; user-select: none;
+}
+.nav-item:hover { background: var(--surface2); color: var(--text); }
+.nav-item.active { background: var(--red-glow); color: var(--red2); }
+.nav-icon { font-size: 15px; width: 18px; text-align: center; }
+.nav-badge {
+  margin-left: auto; background: var(--red);
+  border-radius: 10px; padding: 1px 7px;
+  font-size: 10px; font-weight: 600; color: #fff;
+}
+.sidebar-footer { margin-top: auto; padding: 0 12px; }
+.aws-badge {
+  background: var(--surface2); border: 1px solid var(--border);
+  border-radius: 8px; padding: 10px 12px;
+}
+.aws-badge-title { font-size: 10px; font-weight: 600; color: var(--text3); text-transform: uppercase; letter-spacing: .06em; margin-bottom: 4px; }
+.aws-tag {
+  display: inline-flex; align-items: center; gap: 4px;
+  background: rgba(255,153,0,0.1); border: 1px solid rgba(255,153,0,0.2);
+  border-radius: 5px; padding: 2px 7px; font-size: 10px; color: #FF9900; margin: 2px;
+}
+
+/* ── MAIN CONTENT ───────────────────────────── */
+.main { flex: 1; overflow-y: auto; background: var(--bg); padding: 24px; }
+.view { display: none; }
+.view.active { display: block; }
+
+/* ── PAGE HEADER ────────────────────────────── */
+.page-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 24px; }
+.page-title { font-family: 'Space Grotesk', sans-serif; font-size: 22px; font-weight: 600; }
+.page-sub { font-size: 13px; color: var(--text2); margin-top: 2px; }
+.header-actions { display: flex; gap: 10px; }
+.btn {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 8px 16px; border-radius: 8px; font-size: 13px; font-weight: 500;
+  cursor: pointer; transition: all .15s; border: none; font-family: 'DM Sans', sans-serif;
+}
+.btn-ghost { background: var(--surface2); color: var(--text2); border: 1px solid var(--border2); }
+.btn-ghost:hover { border-color: var(--border2); color: var(--text); }
+.btn-primary { background: var(--red); color: #fff; }
+.btn-primary:hover { background: var(--red2); }
+
+/* ── KPI ROW ────────────────────────────────── */
+.kpi-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; margin-bottom: 24px; }
+.kpi-card {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: var(--radius-lg); padding: 18px 20px;
+  transition: border-color .2s;
+}
+.kpi-card:hover { border-color: var(--border2); }
+.kpi-label { font-size: 11px; color: var(--text2); font-weight: 500; margin-bottom: 8px; text-transform: uppercase; letter-spacing: .06em; }
+.kpi-value { font-family: 'Space Grotesk', sans-serif; font-size: 26px; font-weight: 600; }
+.kpi-delta {
+  display: inline-flex; align-items: center; gap: 4px;
+  font-size: 12px; margin-top: 6px; font-weight: 500;
+}
+.delta-up { color: var(--green); }
+.delta-down { color: var(--red2); }
+.kpi-sparkline { margin-top: 10px; height: 36px; }
+
+/* ── GRID LAYOUTS ───────────────────────────── */
+.grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px; }
+.grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; margin-bottom: 16px; }
+.grid-3-1 { display: grid; grid-template-columns: 2fr 1fr; gap: 16px; margin-bottom: 16px; }
+.grid-2-1 { display: grid; grid-template-columns: 1.5fr 1fr; gap: 16px; margin-bottom: 16px; }
+.card {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: var(--radius-lg); padding: 20px;
+  transition: border-color .2s;
+}
+.card:hover { border-color: var(--border2); }
+.card-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; }
+.card-title { font-family: 'Space Grotesk', sans-serif; font-size: 14px; font-weight: 600; }
+.card-sub { font-size: 12px; color: var(--text2); }
+.chart-wrap { position: relative; width: 100%; }
+
+/* ── PLATFORM LEGEND ────────────────────────── */
+.legend { display: flex; flex-wrap: wrap; gap: 12px; margin-bottom: 14px; }
+.legend-item { display: flex; align-items: center; gap: 5px; font-size: 11px; color: var(--text2); }
+.legend-dot { width: 8px; height: 8px; border-radius: 2px; flex-shrink: 0; }
+
+/* ── PLATFORM BARS ──────────────────────────── */
+.platform-list { display: flex; flex-direction: column; gap: 10px; }
+.platform-row { display: flex; align-items: center; gap: 10px; }
+.platform-name { font-size: 12px; color: var(--text2); width: 80px; flex-shrink: 0; }
+.platform-bar-bg { flex: 1; height: 6px; background: var(--surface2); border-radius: 3px; overflow: hidden; }
+.platform-bar-fill { height: 100%; border-radius: 3px; transition: width .8s ease; }
+.platform-val { font-size: 12px; font-weight: 600; width: 44px; text-align: right; }
+
+/* ── FUNNEL ─────────────────────────────────── */
+.funnel-list { display: flex; flex-direction: column; gap: 8px; }
+.funnel-row { display: flex; align-items: center; gap: 10px; }
+.funnel-bar {
+  height: 32px; border-radius: 6px;
+  display: flex; align-items: center; padding-left: 12px;
+  font-size: 11px; font-weight: 600; transition: width .8s ease;
+  border-left: 3px solid;
+}
+.funnel-label { font-size: 11px; color: var(--text2); width: 90px; }
+.funnel-num { font-size: 12px; font-weight: 600; margin-left: auto; }
+
+/* ── HEATMAP ────────────────────────────────── */
+.heatmap { display: grid; grid-template-columns: 28px repeat(7,1fr); gap: 3px; font-size: 10px; }
+.hm-label { color: var(--text3); display: flex; align-items: center; justify-content: flex-end; padding-right: 4px; }
+.hm-cell { height: 20px; border-radius: 3px; cursor: pointer; transition: opacity .15s; }
+.hm-cell:hover { opacity: .75; }
+.hm-head { font-size: 10px; color: var(--text3); text-align: center; }
+
+/* ── SENTIMENT ──────────────────────────────── */
+.sentiment-track { height: 8px; border-radius: 4px; overflow: hidden; display: flex; margin: 6px 0 4px; }
+.sent-pos { background: var(--green); }
+.sent-neu { background: var(--text3); }
+.sent-neg { background: var(--red2); }
+.sent-labels { display: flex; gap: 10px; font-size: 10px; }
+
+/* ── TABLE ──────────────────────────────────── */
+.data-table { width: 100%; border-collapse: collapse; }
+.data-table th {
+  font-size: 11px; font-weight: 600; color: var(--text2);
+  text-align: left; padding: 8px 10px;
+  border-bottom: 1px solid var(--border); text-transform: uppercase; letter-spacing: .04em;
+}
+.data-table td {
+  padding: 10px 10px; font-size: 13px; color: var(--text);
+  border-bottom: 1px solid var(--border);
+}
+.data-table tr:last-child td { border-bottom: none; }
+.data-table tr:hover td { background: var(--surface2); }
+.badge {
+  display: inline-flex; align-items: center;
+  padding: 2px 8px; border-radius: 20px; font-size: 10px; font-weight: 600;
+}
+.badge-green { background: rgba(34,199,138,0.12); color: var(--green); }
+.badge-red { background: rgba(232,33,42,0.12); color: var(--red2); }
+.badge-amber { background: rgba(245,166,35,0.12); color: var(--amber); }
+.badge-blue { background: rgba(74,158,245,0.12); color: var(--blue); }
+
+/* ── AI INSIGHTS ────────────────────────────── */
+.ai-card {
+  background: linear-gradient(135deg, rgba(232,33,42,0.06) 0%, rgba(155,127,232,0.06) 100%);
+  border: 1px solid rgba(232,33,42,0.2);
+  border-radius: var(--radius-lg); padding: 18px 20px; margin-bottom: 14px;
+}
+.ai-header { display: flex; align-items: center; gap: 8px; margin-bottom: 10px; }
+.ai-icon {
+  width: 28px; height: 28px; border-radius: 7px;
+  background: var(--red); display: flex; align-items: center; justify-content: center;
+  font-size: 14px;
+}
+.ai-badge { font-size: 10px; font-weight: 600; color: var(--red2); background: var(--red-glow); border-radius: 5px; padding: 2px 8px; }
+.ai-title { font-size: 13px; font-weight: 600; }
+.ai-body { font-size: 13px; color: var(--text2); line-height: 1.6; }
+.ai-actions { display: flex; gap: 8px; margin-top: 12px; }
+.ai-action-btn {
+  font-size: 11px; font-weight: 500; padding: 5px 12px;
+  border-radius: 6px; border: 1px solid var(--border2);
+  background: var(--surface2); color: var(--text2); cursor: pointer;
+}
+
+/* ── ARCHITECTURE VIEW ──────────────────────── */
+.arch-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 14px; margin-bottom: 20px; }
+.arch-card {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: var(--radius-lg); padding: 16px;
+}
+.arch-phase {
+  font-size: 10px; font-weight: 600; text-transform: uppercase;
+  letter-spacing: .06em; color: var(--red2); margin-bottom: 8px;
+}
+.arch-service {
+  display: flex; align-items: center; gap: 8px; padding: 6px 0;
+  border-bottom: 1px solid var(--border); font-size: 12px;
+}
+.arch-service:last-child { border-bottom: none; }
+.arch-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--green); }
+.arch-cost { margin-left: auto; color: var(--text2); font-size: 11px; }
+.wa-pillar {
+  display: flex; align-items: center; gap: 10px;
+  background: var(--surface2); border: 1px solid var(--border);
+  border-radius: 8px; padding: 12px 14px; margin-bottom: 8px;
+}
+.wa-icon { font-size: 18px; width: 28px; text-align: center; }
+.wa-title { font-size: 13px; font-weight: 500; }
+.wa-desc { font-size: 11px; color: var(--text2); margin-top: 2px; }
+.wa-check { margin-left: auto; color: var(--green); font-size: 14px; }
+
+/* ── CLIENTS VIEW ───────────────────────────── */
+.clients-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 14px; }
+.client-card {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: var(--radius-lg); padding: 20px;
+  cursor: pointer; transition: all .2s;
+}
+.client-card:hover { border-color: var(--red); transform: translateY(-2px); }
+.client-card-avatar {
+  width: 44px; height: 44px; border-radius: 10px;
+  display: flex; align-items: center; justify-content: center;
+  font-family: 'Space Grotesk', sans-serif; font-weight: 700; font-size: 16px;
+  margin-bottom: 12px;
+}
+.client-card-name { font-size: 15px; font-weight: 600; margin-bottom: 2px; }
+.client-card-industry { font-size: 12px; color: var(--text2); margin-bottom: 14px; }
+.client-metrics { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.client-metric { background: var(--surface2); border-radius: 7px; padding: 8px 10px; }
+.client-metric-label { font-size: 10px; color: var(--text2); margin-bottom: 2px; }
+.client-metric-value { font-size: 14px; font-weight: 600; }
+.add-client-card {
+  background: var(--surface); border: 1.5px dashed var(--border2);
+  border-radius: var(--radius-lg); padding: 20px;
+  display: flex; flex-direction: column; align-items: center;
+  justify-content: center; min-height: 180px; cursor: pointer;
+  transition: all .2s; color: var(--text2);
+}
+.add-client-card:hover { border-color: var(--red); color: var(--red2); }
+.add-icon { font-size: 28px; margin-bottom: 10px; }
+.add-label { font-size: 13px; font-weight: 500; }
+
+/* ── ALERTS ─────────────────────────────────── */
+.alert-list { display: flex; flex-direction: column; gap: 10px; }
+.alert-item {
+  display: flex; gap: 12px; align-items: flex-start;
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: var(--radius); padding: 14px 16px;
+}
+.alert-dot { width: 8px; height: 8px; border-radius: 50%; margin-top: 4px; flex-shrink: 0; }
+.alert-title { font-size: 13px; font-weight: 500; margin-bottom: 2px; }
+.alert-desc { font-size: 12px; color: var(--text2); }
+.alert-time { font-size: 11px; color: var(--text3); margin-left: auto; flex-shrink: 0; }
+
+/* ── REPORT VIEW ────────────────────────────── */
+.report-card {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: var(--radius-lg); padding: 18px 20px; margin-bottom: 12px;
+  display: flex; align-items: center; gap: 14px;
+}
+.report-icon {
+  width: 42px; height: 42px; border-radius: 9px;
+  display: flex; align-items: center; justify-content: center; font-size: 20px;
+  flex-shrink: 0;
+}
+.report-info { flex: 1; }
+.report-title { font-size: 14px; font-weight: 500; margin-bottom: 2px; }
+.report-meta { font-size: 12px; color: var(--text2); }
+.report-actions { display: flex; gap: 8px; }
+
+/* ── SETTINGS ───────────────────────────────── */
+.settings-section { margin-bottom: 28px; }
+.settings-title { font-family: 'Space Grotesk', sans-serif; font-size: 15px; font-weight: 600; margin-bottom: 14px; padding-bottom: 10px; border-bottom: 1px solid var(--border); }
+.settings-row {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 12px 0; border-bottom: 1px solid var(--border);
+}
+.settings-row:last-child { border-bottom: none; }
+.settings-label { font-size: 13px; font-weight: 500; }
+.settings-desc { font-size: 12px; color: var(--text2); margin-top: 2px; }
+.toggle {
+  width: 38px; height: 22px; background: var(--surface2);
+  border-radius: 11px; position: relative; cursor: pointer;
+  border: 1px solid var(--border2); transition: background .2s;
+}
+.toggle.on { background: var(--red); border-color: var(--red); }
+.toggle-knob {
+  width: 16px; height: 16px; border-radius: 50%; background: #fff;
+  position: absolute; top: 2px; left: 2px; transition: left .2s;
+}
+.toggle.on .toggle-knob { left: 18px; }
+
+/* ── COST SUMMARY ───────────────────────────── */
+.cost-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 12px; margin-bottom: 16px; }
+.cost-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 14px 16px; }
+.cost-label { font-size: 11px; color: var(--text2); margin-bottom: 4px; }
+.cost-val { font-family: 'Space Grotesk', sans-serif; font-size: 20px; font-weight: 600; }
+.cost-range { font-size: 11px; color: var(--text3); margin-top: 2px; }
+
+/* ── MISC ───────────────────────────────────── */
+.mt-0 { margin-top: 0; }
+.color-green { color: var(--green); }
+.color-red { color: var(--red2); }
+.color-amber { color: var(--amber); }
+.color-blue { color: var(--blue); }
+.color-purple { color: var(--purple); }
+.suggestions-card {
+  background: linear-gradient(135deg, rgba(74,158,245,0.06), rgba(155,127,232,0.06));
+  border: 1px solid rgba(74,158,245,0.2);
+  border-radius: var(--radius-lg); padding: 20px; margin-top: 16px;
+}
+.suggestion-item {
+  display: flex; gap: 10px; padding: 10px 0;
+  border-bottom: 1px solid rgba(74,158,245,0.1);
+}
+.suggestion-item:last-child { border-bottom: none; }
+.suggestion-num { font-size: 10px; font-weight: 700; color: var(--blue); background: rgba(74,158,245,0.12); width: 22px; height: 22px; border-radius: 50%; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+.suggestion-text { font-size: 12px; color: var(--text2); line-height: 1.5; }
+.suggestion-text strong { color: var(--text); }
+
+/* ── SCROLLBAR ──────────────────────────────── */
+::-webkit-scrollbar { width: 4px; height: 4px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 4px; }
+
+/* ── ANIMATIONS ─────────────────────────────── */
+@keyframes fadeIn { from { opacity:0; transform: translateY(8px); } to { opacity:1; transform: translateY(0); } }
+.view.active { animation: fadeIn .25s ease; }
+@keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+.spin { display: inline-block; animation: spin 1s linear infinite; }
+</style>
+</head>
+<body>
+
+<!-- ── LOGIN ─────────────────────────────────── -->
+<div id="login-screen">
+  <div class="login-card">
+    <div class="login-logo">
+      <div class="login-logo-icon">ST</div>
+      <div>
+        <div class="login-logo-text">Social <span style="color:var(--red)">Analytics Platform</span></div>
+        <div class="login-logo-sub">Analytics Platform — v1.0 MVP</div>
+      </div>
+    </div>
+    <div class="login-title">Welcome back</div>
+    <div class="login-sub">Sign in to access your analytics dashboard</div>
+    <div class="form-group">
+      <label class="form-label">Email address</label>
+      <input class="form-input" type="email" placeholder="you@yourcompany.com" value="admin@yourcompany.com"/>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Password</label>
+      <input class="form-input" type="password" placeholder="••••••••" value="••••••••"/>
+    </div>
+    <button class="btn-login" onclick="launchApp()">Sign in securely → AWS Cognito</button>
+    <div class="login-footer">Protected by AWS Cognito · WAF · KMS Encryption<br/><a href="#">Forgot password?</a> · <a href="#">Contact support</a></div>
+  </div>
+</div>
+
+<!-- ── APP ───────────────────────────────────── -->
+<div id="app">
+
+  <!-- TOP BAR -->
+  <div class="topbar">
+    <div class="topbar-logo">
+      <div class="topbar-logo-icon">ST</div>
+      <div class="topbar-logo-name">Social <span>Analytics</span></div>
+    </div>
+    <div class="topbar-divider"></div>
+    <div class="client-switcher" onclick="goView('clients')">
+      <div class="client-avatar">FY</div>
+      <div class="client-name">Client Account</div>
+      <div class="client-arrow">▼</div>
+    </div>
+    <div class="topbar-spacer"></div>
+    <div class="topbar-badge"><div class="pulse"></div>AWS Live</div>
+    <div class="topbar-badge">📅 Apr 2026</div>
+    <div class="topbar-avatar">CE</div>
+  </div>
+
+  <div class="app-body">
+
+    <!-- SIDEBAR -->
+    <div class="sidebar">
+      <div class="sidebar-section">
+        <div class="sidebar-label">Main</div>
+        <div class="nav-item active" onclick="goView('dashboard',this)"><span class="nav-icon">◼</span>Dashboard</div>
+        <div class="nav-item" onclick="goView('clients',this)"><span class="nav-icon">◻</span>Clients<span class="nav-badge">4</span></div>
+        <div class="nav-item" onclick="goView('analytics',this)"><span class="nav-icon">▲</span>Analytics</div>
+        <div class="nav-item" onclick="goView('ai',this)"><span class="nav-icon">✦</span>AI Insights<span class="nav-badge">3</span></div>
+      </div>
+      <div class="sidebar-section">
+        <div class="sidebar-label">Reporting</div>
+        <div class="nav-item" onclick="goView('reports',this)"><span class="nav-icon">▤</span>Reports</div>
+        <div class="nav-item" onclick="goView('alerts',this)"><span class="nav-icon">◎</span>Alerts<span class="nav-badge">2</span></div>
+      </div>
+      <div class="sidebar-section">
+        <div class="sidebar-label">System</div>
+        <div class="nav-item" onclick="goView('architecture',this)"><span class="nav-icon">⬡</span>AWS Architecture</div>
+        <div class="nav-item" onclick="goView('settings',this)"><span class="nav-icon">⚙</span>Settings</div>
+      </div>
+      <div class="sidebar-footer">
+        <div class="aws-badge">
+          <div class="aws-badge-title">Well-Architected</div>
+          <div style="margin-top:4px">
+            <span class="aws-tag">✓ HA</span>
+            <span class="aws-tag">✓ SEC</span>
+            <span class="aws-tag">✓ COST</span>
+            <span class="aws-tag">✓ PERF</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- MAIN -->
+    <div class="main">
+
+      <!-- ── DASHBOARD ───────────────────────── -->
+      <div class="view active" id="view-dashboard">
+        <div class="page-header">
+          <div>
+            <div class="page-title">Dashboard Overview</div>
+            <div class="page-sub">Client Dashboard · Campaign Overview</div>
+          </div>
+          <div class="header-actions">
+            <button class="btn btn-ghost">⬇ Export PDF</button>
+            <button class="btn btn-primary">+ New Report</button>
+          </div>
+        </div>
+
+        <div class="kpi-row">
+          <div class="kpi-card">
+            <div class="kpi-label">Total Followers</div>
+            <div class="kpi-value">14,820</div>
+            <div class="kpi-delta delta-up">▲ 8.4% this month</div>
+          </div>
+          <div class="kpi-card">
+            <div class="kpi-label">Avg. Engagement</div>
+            <div class="kpi-value">5.2%</div>
+            <div class="kpi-delta delta-up">▲ 1.1 pts vs prior</div>
+          </div>
+          <div class="kpi-card">
+            <div class="kpi-label">Monthly Reach</div>
+            <div class="kpi-value">84.3K</div>
+            <div class="kpi-delta delta-up">▲ 18.7%</div>
+          </div>
+          <div class="kpi-card">
+            <div class="kpi-label">Link Clicks</div>
+            <div class="kpi-value">2,190</div>
+            <div class="kpi-delta delta-down">▼ 4.1% vs prior</div>
+          </div>
+        </div>
+
+        <div class="grid-3-1">
+          <div class="card">
+            <div class="card-header">
+              <div><div class="card-title">Engagement Rate — All Platforms</div><div class="card-sub">Weekly trend · last 12 weeks</div></div>
+              <div class="legend">
+                <div class="legend-item"><div class="legend-dot" style="background:#4A9EF5"></div>Instagram</div>
+                <div class="legend-item"><div class="legend-dot" style="background:#22C78A"></div>LinkedIn</div>
+                <div class="legend-item"><div class="legend-dot" style="background:#4267B2"></div>Facebook</div>
+              </div>
+            </div>
+            <div class="chart-wrap" style="height:220px"><canvas id="c-engagement" role="img" aria-label="Multi-platform engagement rate trend over 12 weeks">Engagement rates across platforms.</canvas></div>
+          </div>
+          <div class="card">
+            <div class="card-header"><div class="card-title">Platform Mix</div><div class="card-sub">By audience share</div></div>
+            <div class="chart-wrap" style="height:160px"><canvas id="c-donut" role="img" aria-label="Platform audience share donut chart">Platform audience distribution.</canvas></div>
+            <div class="legend" style="margin-top:12px;margin-bottom:0">
+              <div class="legend-item"><div class="legend-dot" style="background:#4A9EF5"></div>Instagram 44%</div>
+              <div class="legend-item"><div class="legend-dot" style="background:#22C78A"></div>LinkedIn 31%</div>
+              <div class="legend-item"><div class="legend-dot" style="background:#4267B2"></div>Facebook 25%</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="grid-2">
+          <div class="card">
+            <div class="card-header"><div class="card-title">Follower Growth</div><div class="card-sub">Monthly net new followers</div></div>
+            <div class="chart-wrap" style="height:180px"><canvas id="c-growth" role="img" aria-label="Bar chart of monthly follower growth">Monthly follower growth.</canvas></div>
+          </div>
+          <div class="card">
+            <div class="card-header"><div class="card-title">Content Performance by Format</div><div class="card-sub">Reach · Saves · Shares · Comments</div></div>
+            <div class="chart-wrap" style="height:180px"><canvas id="c-radar" role="img" aria-label="Radar chart of content format performance">Content type performance.</canvas></div>
+          </div>
+        </div>
+
+        <div class="grid-2">
+          <div class="card">
+            <div class="card-header"><div class="card-title">Reach by Platform</div><div class="card-sub">Monthly impressions</div></div>
+            <div class="platform-list">
+              <div class="platform-row"><div class="platform-name">Instagram</div><div class="platform-bar-bg"><div class="platform-bar-fill" style="width:88%;background:#4A9EF5"></div></div><div class="platform-val color-blue">48.2K</div></div>
+              <div class="platform-row"><div class="platform-name">LinkedIn</div><div class="platform-bar-bg"><div class="platform-bar-fill" style="width:62%;background:#22C78A"></div></div><div class="platform-val color-green">24.1K</div></div>
+              <div class="platform-row"><div class="platform-name">Facebook</div><div class="platform-bar-bg"><div class="platform-bar-fill" style="width:42%;background:#4267B2"></div></div><div class="platform-val" style="color:#4267B2">12.0K</div></div>
+            </div>
+            <div style="margin-top:18px">
+              <div class="card-title" style="margin-bottom:10px">Paid vs. Organic</div>
+              <div class="chart-wrap" style="height:110px"><canvas id="c-paidorg" role="img" aria-label="Stacked area chart paid vs organic reach">Paid versus organic reach over time.</canvas></div>
+            </div>
+          </div>
+          <div class="card">
+            <div class="card-header"><div class="card-title">Conversion Funnel</div><div class="card-sub">Awareness to action</div></div>
+            <div class="funnel-list" id="funnel-list"></div>
+            <div style="margin-top:18px">
+              <div class="card-title" style="margin-bottom:10px">Sentiment Analysis</div>
+              <div style="font-size:12px;color:var(--text2);margin-bottom:4px">Instagram</div>
+              <div class="sentiment-track"><div class="sent-pos" style="flex:.71"></div><div class="sent-neu" style="flex:.17"></div><div class="sent-neg" style="flex:.12"></div></div>
+              <div class="sent-labels"><span class="color-green">71% pos</span><span style="color:var(--text3)">17% neu</span><span class="color-red">12% neg</span></div>
+              <div style="font-size:12px;color:var(--text2);margin-top:10px;margin-bottom:4px">LinkedIn</div>
+              <div class="sentiment-track"><div class="sent-pos" style="flex:.82"></div><div class="sent-neu" style="flex:.13"></div><div class="sent-neg" style="flex:.05"></div></div>
+              <div class="sent-labels"><span class="color-green">82% pos</span><span style="color:var(--text3)">13% neu</span><span class="color-red">5% neg</span></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-header"><div class="card-title">Best Times to Post — Engagement Heatmap</div><div class="card-sub">Darker = higher engagement probability</div></div>
+          <div id="heatmap-el"></div>
+        </div>
+
+        <div class="card" style="margin-top:16px">
+          <div class="card-header"><div class="card-title">Top Performing Posts</div><div class="card-sub">All platforms · this month</div></div>
+          <table class="data-table">
+            <thead><tr><th>Post Content</th><th>Platform</th><th>Reach</th><th>Eng. Rate</th><th>Clicks</th><th>Status</th></tr></thead>
+            <tbody>
+              <tr><td>Spring Campaign announcement</td><td>Instagram</td><td>12,400</td><td>9.2%</td><td>384</td><td><span class="badge badge-green">Top</span></td></tr>
+              <tr><td>Alumni spotlight video series — Ep. 3</td><td>LinkedIn</td><td>8,800</td><td>7.8%</td><td>291</td><td><span class="badge badge-green">Top</span></td></tr>
+              <tr><td>Giving Tuesday campaign graphic</td><td>Facebook</td><td>5,200</td><td>4.1%</td><td>143</td><td><span class="badge badge-amber">Avg</span></td></tr>
+              <tr><td>Community partnership highlight</td><td>Instagram</td><td>4,600</td><td>6.3%</td><td>97</td><td><span class="badge badge-blue">Growing</span></td></tr>
+              <tr><td>Board member introduction thread</td><td>LinkedIn</td><td>2,100</td><td>2.9%</td><td>44</td><td><span class="badge badge-red">Low</span></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- ── CLIENTS ─────────────────────────── -->
+      <div class="view" id="view-clients">
+        <div class="page-header">
+          <div><div class="page-title">Client Management</div><div class="page-sub">All active accounts · Analytics Platform</div></div>
+          <button class="btn btn-primary">+ Onboard New Client</button>
+        </div>
+        <div class="clients-grid">
+          <div class="client-card" onclick="goView('dashboard')">
+            <div class="client-card-avatar" style="background:rgba(74,158,245,0.12);color:#4A9EF5">FY</div>
+            <div class="client-card-name">Client Account</div>
+            <div class="client-card-industry">Marketing &amp; Consulting</div>
+            <div class="client-metrics">
+              <div class="client-metric"><div class="client-metric-label">Followers</div><div class="client-metric-value">14.8K</div></div>
+              <div class="client-metric"><div class="client-metric-label">Eng. Rate</div><div class="client-metric-value color-green">5.2%</div></div>
+            </div>
+          </div>
+          <div class="client-card">
+            <div class="client-card-avatar" style="background:rgba(34,199,138,0.12);color:#22C78A">NB</div>
+            <div class="client-card-name">NovaBev Co.</div>
+            <div class="client-card-industry">Food &amp; Beverage · CPG Brand</div>
+            <div class="client-metrics">
+              <div class="client-metric"><div class="client-metric-label">Followers</div><div class="client-metric-value">38.2K</div></div>
+              <div class="client-metric"><div class="client-metric-label">Eng. Rate</div><div class="client-metric-value color-green">7.1%</div></div>
+            </div>
+          </div>
+          <div class="client-card">
+            <div class="client-card-avatar" style="background:rgba(245,166,35,0.12);color:#F5A623">LA</div>
+            <div class="client-card-name">Luxe Apparel</div>
+            <div class="client-card-industry">Fashion &amp; Retail · E-Commerce</div>
+            <div class="client-metrics">
+              <div class="client-metric"><div class="client-metric-label">Followers</div><div class="client-metric-value">91.4K</div></div>
+              <div class="client-metric"><div class="client-metric-label">Eng. Rate</div><div class="client-metric-value color-amber">3.8%</div></div>
+            </div>
+          </div>
+          <div class="client-card">
+            <div class="client-card-avatar" style="background:rgba(155,127,232,0.12);color:#9B7FE8">HF</div>
+            <div class="client-card-name">HomeFirst Solutions</div>
+            <div class="client-card-industry">Real Estate &amp; Finance</div>
+            <div class="client-metrics">
+              <div class="client-metric"><div class="client-metric-label">Followers</div><div class="client-metric-value">6,200</div></div>
+              <div class="client-metric"><div class="client-metric-label">Eng. Rate</div><div class="client-metric-value color-green">4.4%</div></div>
+            </div>
+          </div>
+          <div class="add-client-card">
+            <div class="add-icon">+</div>
+            <div class="add-label">Add New Client</div>
+            <div style="font-size:11px;color:var(--text3);margin-top:4px;text-align:center">Connects platforms<br/>and provisions AWS resources</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── ANALYTICS ──────────────────────── -->
+      <div class="view" id="view-analytics">
+        <div class="page-header">
+          <div><div class="page-title">Advanced Analytics</div><div class="page-sub">Predictive trends · Quarterly deep-dive</div></div>
+          <button class="btn btn-ghost">📅 Q1–Q2 2026</button>
+        </div>
+        <div class="kpi-row">
+          <div class="kpi-card"><div class="kpi-label">Predicted Q3 Followers</div><div class="kpi-value">19.2K</div><div class="kpi-delta delta-up">▲ +29% projected</div></div>
+          <div class="kpi-card"><div class="kpi-label">Trend Score</div><div class="kpi-value">84/100</div><div class="kpi-delta delta-up">▲ Strong upward</div></div>
+          <div class="kpi-card"><div class="kpi-label">Viral Probability</div><div class="kpi-value">18%</div><div class="kpi-delta delta-up">▲ Next 30 days</div></div>
+          <div class="kpi-card"><div class="kpi-label">Best Post Window</div><div class="kpi-value">Tue 6PM</div><div class="kpi-delta" style="color:var(--text2)">Instagram · Highest CTR</div></div>
+        </div>
+        <div class="grid-2">
+          <div class="card">
+            <div class="card-header"><div class="card-title">90-Day Forecast — Follower Growth</div><div class="card-sub">Historical + AI prediction (SageMaker)</div></div>
+            <div class="chart-wrap" style="height:220px"><canvas id="c-forecast" role="img" aria-label="Line chart with AI-predicted follower growth forecast">Forecast chart with confidence band.</canvas></div>
+          </div>
+          <div class="card">
+            <div class="card-header"><div class="card-title">Quarterly Performance</div><div class="card-sub">Engagement · Reach · Clicks</div></div>
+            <div class="chart-wrap" style="height:220px"><canvas id="c-quarterly" role="img" aria-label="Grouped bar chart of quarterly metrics">Quarterly metrics comparison.</canvas></div>
+          </div>
+        </div>
+        <div class="grid-2">
+          <div class="card">
+            <div class="card-header"><div class="card-title">Audience Demographics</div><div class="card-sub">Age × gender breakdown</div></div>
+            <div class="chart-wrap" style="height:200px"><canvas id="c-demo" role="img" aria-label="Demographics chart">Audience age and gender breakdown.</canvas></div>
+          </div>
+          <div class="card">
+            <div class="card-header"><div class="card-title">Top Content Categories</div><div class="card-sub">Performance by content type</div></div>
+            <div class="chart-wrap" style="height:200px"><canvas id="c-content" role="img" aria-label="Horizontal bar chart of content categories">Content category performance.</canvas></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── AI INSIGHTS ────────────────────── -->
+      <div class="view" id="view-ai">
+        <div class="page-header">
+          <div><div class="page-title">AI Insights</div><div class="page-sub">Powered by Amazon Bedrock · SageMaker</div></div>
+          <button class="btn btn-primary">✦ Generate New Analysis</button>
+        </div>
+        <div class="ai-card">
+          <div class="ai-header"><div class="ai-icon">✦</div><div><div class="ai-title">Campaign Recommendation — Active Client</div><div class="ai-badge">Bedrock · High confidence</div></div></div>
+          <div class="ai-body">Your Instagram engagement rate (9.2%) is <strong style="color:var(--green)">2.4× above your baseline</strong>. The spring campaign post outperformed all content this quarter. Bedrock analysis suggests doubling down on event-driven storytelling with user-generated content reposts. Recommended action: launch a <strong style="color:var(--text)">2-week countdown series</strong> using alumni spotlight format — predicted +14% reach based on current velocity.</div>
+          <div class="ai-actions"><div class="ai-action-btn">Generate post ideas</div><div class="ai-action-btn">View supporting data</div><div class="ai-action-btn">Schedule campaign</div></div>
+        </div>
+        <div class="ai-card">
+          <div class="ai-header"><div class="ai-icon">📈</div><div><div class="ai-title">Trend Prediction — LinkedIn Growth Spike</div><div class="ai-badge">SageMaker · 83% confidence</div></div></div>
+          <div class="ai-body">SageMaker trend model detects a <strong style="color:var(--text)">professional network expansion signal</strong> on your LinkedIn. Board member content is underperforming (2.9% ER) but the engagement-to-impression ratio suggests it's reaching <em>new audiences</em> outside your core followers. Recommendation: shift from announcements to <strong style="color:var(--text)">thought leadership op-eds</strong>. Predicted follower increase: +380–520 over 30 days if posting 3×/week.</div>
+          <div class="ai-actions"><div class="ai-action-btn">Draft sample post</div><div class="ai-action-btn">Set posting schedule</div></div>
+        </div>
+        <div class="ai-card">
+          <div class="ai-header"><div class="ai-icon">⚠</div><div><div class="ai-title">Anomaly Detected — Facebook Engagement Drop</div><div class="ai-badge">Bedrock · Alert</div></div></div>
+          <div class="ai-body">Facebook engagement dropped <strong style="color:var(--red2)">–4.1% week-over-week</strong>, which is statistically significant given your growth trajectory. Potential causes: algorithm shift (Meta reduced organic reach for pages &lt;10K followers in March 2026), or content fatigue with graphic-only posts. Recommended: test a <strong style="color:var(--text)">video-first format</strong> — your video posts historically receive 2.8× higher reach on this platform.</div>
+          <div class="ai-actions"><div class="ai-action-btn">View anomaly detail</div><div class="ai-action-btn">Create video brief</div></div>
+        </div>
+        <div class="suggestions-card">
+          <div style="font-family:'Space Grotesk',sans-serif;font-size:14px;font-weight:600;margin-bottom:14px;color:var(--blue)">💡 Recommended Platform Additions</div>
+          <div class="suggestion-item"><div class="suggestion-num">1</div><div class="suggestion-text"><strong>Add YouTube Shorts integration</strong> — Short-form video is the highest-growth format for nonprofit/foundation audiences. AppFlow connector available.</div></div>
+          <div class="suggestion-item"><div class="suggestion-num">2</div><div class="suggestion-text"><strong>CRM link (HubSpot/Salesforce)</strong> — Connect lead attribution from social clicks directly to donor/client pipeline tracking for true ROI measurement.</div></div>
+          <div class="suggestion-item"><div class="suggestion-num">3</div><div class="suggestion-text"><strong>Competitor benchmarking module</strong> — Track 3–5 competitor pages and auto-compare your metrics to industry averages using Bedrock summaries.</div></div>
+          <div class="suggestion-item"><div class="suggestion-num">4</div><div class="suggestion-text"><strong>Email campaign correlation</strong> — Link your social posting schedule to email send times (via SES) to identify cross-channel amplification patterns.</div></div>
+          <div class="suggestion-item"><div class="suggestion-num">5</div><div class="suggestion-text"><strong>White-label client portal</strong> — Give each client their own read-only subdomain dashboard (e.g., client.youranalytics.com) using CloudFront + Cognito groups.</div></div>
+        </div>
+      </div>
+
+      <!-- ── REPORTS ─────────────────────────── -->
+      <div class="view" id="view-reports">
+        <div class="page-header">
+          <div><div class="page-title">Reports</div><div class="page-sub">Scheduled batch delivery · weekly cadence</div></div>
+          <button class="btn btn-primary">+ Schedule Report</button>
+        </div>
+        <div class="report-card"><div class="report-icon" style="background:rgba(74,158,245,0.1)">📊</div><div class="report-info"><div class="report-title">Weekly Social Performance Summary — Active Client</div><div class="report-meta">Last generated: Apr 19, 2026 · PDF + CSV · Delivered to CEO inbox</div></div><div class="report-actions"><button class="btn btn-ghost" style="font-size:12px">⬇ Download</button><button class="btn btn-primary" style="font-size:12px">Regenerate</button></div></div>
+        <div class="report-card"><div class="report-icon" style="background:rgba(34,199,138,0.1)">📈</div><div class="report-info"><div class="report-title">Q1 2026 Quarterly Analytics Report</div><div class="report-meta">Generated: Apr 1, 2026 · Full PDF · All clients</div></div><div class="report-actions"><button class="btn btn-ghost" style="font-size:12px">⬇ Download</button></div></div>
+        <div class="report-card"><div class="report-icon" style="background:rgba(155,127,232,0.1)">✦</div><div class="report-info"><div class="report-title">AI Trend Forecast — April–June 2026</div><div class="report-meta">Bedrock + SageMaker · Generated: Apr 15, 2026</div></div><div class="report-actions"><button class="btn btn-ghost" style="font-size:12px">⬇ Download</button></div></div>
+        <div class="report-card"><div class="report-icon" style="background:rgba(245,166,35,0.1)">🎯</div><div class="report-info"><div class="report-title">Campaign ROI Report — Spring Gala</div><div class="report-meta">Attribution model · Social → Conversions · Generated: Apr 21, 2026</div></div><div class="report-actions"><button class="btn btn-ghost" style="font-size:12px">⬇ Download</button><button class="btn btn-primary" style="font-size:12px">Share with Client</button></div></div>
+        <div class="card" style="margin-top:4px">
+          <div class="card-title" style="margin-bottom:14px">Report Delivery Schedule</div>
+          <table class="data-table">
+            <thead><tr><th>Report Name</th><th>Frequency</th><th>Recipients</th><th>Format</th><th>Next Send</th></tr></thead>
+            <tbody>
+              <tr><td>Weekly Performance Summary</td><td>Every Monday</td><td>CEO · Lead Consultant</td><td>PDF + CSV</td><td><span class="badge badge-green">Apr 28</span></td></tr>
+              <tr><td>Monthly Platform Deep-Dive</td><td>1st of month</td><td>CEO</td><td>PDF</td><td><span class="badge badge-blue">May 1</span></td></tr>
+              <tr><td>Quarterly Client Recap</td><td>Quarterly</td><td>All clients</td><td>PDF Branded</td><td><span class="badge badge-amber">Jul 1</span></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- ── ALERTS ──────────────────────────── -->
+      <div class="view" id="view-alerts">
+        <div class="page-header">
+          <div><div class="page-title">Alerts &amp; Notifications</div><div class="page-sub">Powered by Amazon CloudWatch · EventBridge · SNS</div></div>
+          <button class="btn btn-ghost">⚙ Manage Rules</button>
+        </div>
+        <div class="alert-list">
+          <div class="alert-item"><div class="alert-dot" style="background:var(--red2)"></div><div><div class="alert-title">Engagement drop detected — Facebook (–4.1%)</div><div class="alert-desc">Week-over-week drop exceeds threshold of –3%. Bedrock analysis triggered. Review AI Insights for recommended actions.</div></div><div class="alert-time">2h ago</div></div>
+          <div class="alert-item"><div class="alert-dot" style="background:var(--amber)"></div><div><div class="alert-title">Link click rate below target — Instagram Story</div><div class="alert-desc">CTR on most recent story (1.2%) is below your 2.5% target. Consider refreshing CTA placement.</div></div><div class="alert-time">8h ago</div></div>
+          <div class="alert-item"><div class="alert-dot" style="background:var(--green)"></div><div><div class="alert-title">Milestone reached — LinkedIn: 4,500 followers</div><div class="alert-desc">LinkedIn page crossed the 4,500 follower threshold. Organic growth continues without paid boost.</div></div><div class="alert-time">1d ago</div></div>
+          <div class="alert-item"><div class="alert-dot" style="background:var(--blue)"></div><div><div class="alert-title">Weekly report generated and delivered</div><div class="alert-desc">Apr 14–20 summary sent to CEO inbox via SES. 14-page PDF + CSV attached.</div></div><div class="alert-time">2d ago</div></div>
+          <div class="alert-item"><div class="alert-dot" style="background:var(--green)"></div><div><div class="alert-title">AppFlow sync complete — all platforms</div><div class="alert-desc">Instagram, LinkedIn, Facebook data ingested successfully. 842 new data points. S3 updated.</div></div><div class="alert-time">3d ago</div></div>
+        </div>
+        <div class="card" style="margin-top:16px">
+          <div class="card-title" style="margin-bottom:14px">Alert Rules Configuration</div>
+          <table class="data-table">
+            <thead><tr><th>Rule</th><th>Trigger</th><th>Channel</th><th>Status</th></tr></thead>
+            <tbody>
+              <tr><td>Engagement drop &gt; 3%</td><td>Week-over-week</td><td>Email + Dashboard</td><td><span class="badge badge-green">Active</span></td></tr>
+              <tr><td>Follower milestone (500 increments)</td><td>On threshold</td><td>Email</td><td><span class="badge badge-green">Active</span></td></tr>
+              <tr><td>API sync failure</td><td>3rd-party outage</td><td>SNS + SQS Retry</td><td><span class="badge badge-green">Active</span></td></tr>
+              <tr><td>Weekly report delivery</td><td>Monday 8am EST</td><td>SES Email</td><td><span class="badge badge-green">Active</span></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- ── ARCHITECTURE ────────────────────── -->
+      <div class="view" id="view-architecture">
+        <div class="page-header">
+          <div><div class="page-title">AWS Architecture</div><div class="page-sub">Well-Architected Framework · Platform Infrastructure</div></div>
+          <button class="btn btn-ghost">⬇ Export Diagram</button>
+        </div>
+
+        <div class="cost-grid">
+          <div class="cost-card"><div class="cost-label">Core MVP Monthly</div><div class="cost-val">~$110</div><div class="cost-range">Range: $70–$149/mo</div></div>
+          <div class="cost-card"><div class="cost-label">With AI + Scaling</div><div class="cost-val">~$200</div><div class="cost-range">Range: $95–$356+/mo</div></div>
+          <div class="cost-card"><div class="cost-label">Primary Cost Driver</div><div class="cost-val">QuickSight</div><div class="cost-range">~$40/mo · Embedded BI</div></div>
+        </div>
+
+        <div class="arch-grid">
+          <div class="arch-card"><div class="arch-phase">Phase 1 — Week 1 · Frontend & Auth</div>
+            <div class="arch-service"><div class="arch-dot"></div>S3 Static Hosting<div class="arch-cost">$1–5/mo</div></div>
+            <div class="arch-service"><div class="arch-dot"></div>CloudFront CDN<div class="arch-cost">$5–15/mo</div></div>
+            <div class="arch-service"><div class="arch-dot"></div>Cognito Auth + MFA<div class="arch-cost">Free tier</div></div>
+          </div>
+          <div class="arch-card"><div class="arch-phase">Phase 2 — Week 2 · API & Security</div>
+            <div class="arch-service"><div class="arch-dot"></div>API Gateway REST<div class="arch-cost">$3–10/mo</div></div>
+            <div class="arch-service"><div class="arch-dot"></div>Lambda Functions<div class="arch-cost">$0–5/mo</div></div>
+            <div class="arch-service"><div class="arch-dot"></div>WAF (OWASP rules)<div class="arch-cost">$5–20/mo</div></div>
+            <div class="arch-service"><div class="arch-dot"></div>KMS + Secrets Mgr<div class="arch-cost">$3–8/mo</div></div>
+          </div>
+          <div class="arch-card"><div class="arch-phase">Phase 3 — Week 3 · Data Pipeline</div>
+            <div class="arch-service"><div class="arch-dot"></div>AppFlow (Meta/LinkedIn)<div class="arch-cost">$5–20/mo</div></div>
+            <div class="arch-service"><div class="arch-dot"></div>EventBridge Rules<div class="arch-cost">$0–1/mo</div></div>
+            <div class="arch-service"><div class="arch-dot"></div>S3 Data Lake<div class="arch-cost">Included</div></div>
+          </div>
+          <div class="arch-card"><div class="arch-phase">Phase 4 — Week 4 · Analytics</div>
+            <div class="arch-service"><div class="arch-dot"></div>Glue ETL Jobs<div class="arch-cost">$5–15/mo</div></div>
+            <div class="arch-service"><div class="arch-dot"></div>Athena Queries<div class="arch-cost">$1–10/mo</div></div>
+            <div class="arch-service"><div class="arch-dot"></div>QuickSight Dashboards<div class="arch-cost">~$40/mo</div></div>
+          </div>
+          <div class="arch-card"><div class="arch-phase">Phase 5 — Week 5 · Monitoring</div>
+            <div class="arch-service"><div class="arch-dot"></div>CloudWatch Alarms<div class="arch-cost">$2–10/mo</div></div>
+            <div class="arch-service"><div class="arch-dot"></div>CloudTrail Audit<div class="arch-cost">Free</div></div>
+            <div class="arch-service"><div class="arch-dot"></div>SNS Notifications<div class="arch-cost">Included</div></div>
+          </div>
+          <div class="arch-card" style="border-color:rgba(155,127,232,0.25)"><div class="arch-phase" style="color:var(--purple)">Opt. Wk 6–7 · AI + Scale</div>
+            <div class="arch-service"><div class="arch-dot" style="background:var(--purple)"></div>Bedrock (Summaries)<div class="arch-cost">$5–50/mo</div></div>
+            <div class="arch-service"><div class="arch-dot" style="background:var(--purple)"></div>SageMaker (Forecast)<div class="arch-cost">$20–200+</div></div>
+            <div class="arch-service"><div class="arch-dot" style="background:var(--purple)"></div>SQS Retry Queue<div class="arch-cost">$0–2/mo</div></div>
+            <div class="arch-service"><div class="arch-dot" style="background:var(--purple)"></div>Lake Formation<div class="arch-cost">$0–5/mo</div></div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-title" style="margin-bottom:14px">AWS Well-Architected Framework — Compliance Status</div>
+          <div class="wa-pillar"><div class="wa-icon">🔒</div><div><div class="wa-title">Security</div><div class="wa-desc">Cognito MFA · KMS encryption at rest · WAF OWASP rules · IAM least-privilege · Secrets Manager · CloudTrail audit</div></div><div class="wa-check">✓</div></div>
+          <div class="wa-pillar"><div class="wa-icon">⚡</div><div><div class="wa-title">Reliability</div><div class="wa-desc">Multi-AZ Lambda · S3 99.999% durability · CloudFront global CDN · SQS retry queues · EventBridge dead-letter queues</div></div><div class="wa-check">✓</div></div>
+          <div class="wa-pillar"><div class="wa-icon">🚀</div><div><div class="wa-title">Performance Efficiency</div><div class="wa-desc">Serverless-first (Lambda + Athena) · CloudFront edge caching · Glue job bookmarks for incremental ETL · Athena partition pruning</div></div><div class="wa-check">✓</div></div>
+          <div class="wa-pillar"><div class="wa-icon">💰</div><div><div class="wa-title">Cost Optimization</div><div class="wa-desc">Pay-per-use serverless · S3 Intelligent-Tiering · Lambda free tier · Athena per-query pricing · No idle EC2 instances · Budget alerts via CloudWatch</div></div><div class="wa-check">✓</div></div>
+          <div class="wa-pillar"><div class="wa-icon">🔧</div><div><div class="wa-title">Operational Excellence</div><div class="wa-desc">CloudWatch dashboards · CloudTrail logging · Automated weekly reports via EventBridge · CI/CD pipeline via CodePipeline (recommended)</div></div><div class="wa-check">✓</div></div>
+          <div class="wa-pillar"><div class="wa-icon">♻</div><div><div class="wa-title">Sustainability</div><div class="wa-desc">Serverless reduces idle compute · S3 Intelligent-Tiering minimizes storage waste · On-demand scaling prevents over-provisioning</div></div><div class="wa-check">✓</div></div>
+        </div>
+
+        <div class="suggestions-card">
+          <div style="font-family:'Space Grotesk',sans-serif;font-size:14px;font-weight:600;margin-bottom:14px;color:var(--blue)">🏗 Additional Architecture Recommendations</div>
+          <div class="suggestion-item"><div class="suggestion-num">1</div><div class="suggestion-text"><strong>AWS CodePipeline + CodeBuild (CI/CD)</strong> — Automate deployments so platform updates don't require manual pushes. Critical once you onboard multiple clients.</div></div>
+          <div class="suggestion-item"><div class="suggestion-num">2</div><div class="suggestion-text"><strong>DynamoDB for session/state data</strong> — Store user preferences, saved dashboard filters, and notification settings in a serverless NoSQL table (~$1–5/mo).</div></div>
+          <div class="suggestion-item"><div class="suggestion-num">3</div><div class="suggestion-text"><strong>AWS Backup + S3 versioning</strong> — Automated daily backups of all analytics data. Meets compliance requirements and protects against accidental deletion.</div></div>
+          <div class="suggestion-item"><div class="suggestion-num">4</div><div class="suggestion-text"><strong>Route 53 + ACM (SSL certs)</strong> — Custom domain (e.g., analytics.yourdomain.com) with HTTPS. Adds professionalism when sharing dashboards with clients.</div></div>
+          <div class="suggestion-item"><div class="suggestion-num">5</div><div class="suggestion-text"><strong>AWS Budgets + Cost Anomaly Detection</strong> — Set hard budget alerts at $150/mo. You'll be notified immediately if a Bedrock or SageMaker job runs unexpectedly high.</div></div>
+          <div class="suggestion-item"><div class="suggestion-num">6</div><div class="suggestion-text"><strong>Amazon SES (Email)</strong> — Replace manual report sending with automated branded email delivery to clients. ~$0.10/1K emails — effectively free at your volume.</div></div>
+        </div>
+      </div>
+
+      <!-- ── SETTINGS ─────────────────────────── -->
+      <div class="view" id="view-settings">
+        <div class="page-header">
+          <div><div class="page-title">Settings</div><div class="page-sub">Platform configuration · Account settings</div></div>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
+          <div class="card">
+            <div class="settings-section">
+              <div class="settings-title">Connected Platforms</div>
+              <div class="settings-row"><div><div class="settings-label">Instagram</div><div class="settings-desc">via Meta Graph API · AppFlow</div></div><span class="badge badge-green">Connected</span></div>
+              <div class="settings-row"><div><div class="settings-label">LinkedIn</div><div class="settings-desc">via LinkedIn Marketing API</div></div><span class="badge badge-green">Connected</span></div>
+              <div class="settings-row"><div><div class="settings-label">Facebook Pages</div><div class="settings-desc">Client Facebook page</div></div><span class="badge badge-green">Connected</span></div>
+              <div class="settings-row"><div><div class="settings-label">Google Analytics</div><div class="settings-desc">Not yet connected</div></div><button class="btn btn-ghost" style="font-size:11px">+ Connect</button></div>
+              <div class="settings-row"><div><div class="settings-label">YouTube</div><div class="settings-desc">Not yet connected</div></div><button class="btn btn-ghost" style="font-size:11px">+ Connect</button></div>
+            </div>
+          </div>
+          <div class="card">
+            <div class="settings-section">
+              <div class="settings-title">Notifications &amp; Alerts</div>
+              <div class="settings-row"><div><div class="settings-label">Weekly report delivery</div><div class="settings-desc">Monday 8am EST via SES</div></div><div class="toggle on" onclick="this.classList.toggle('on')"><div class="toggle-knob"></div></div></div>
+              <div class="settings-row"><div><div class="settings-label">Engagement drop alerts</div><div class="settings-desc">CloudWatch → SNS → Email</div></div><div class="toggle on" onclick="this.classList.toggle('on')"><div class="toggle-knob"></div></div></div>
+              <div class="settings-row"><div><div class="settings-label">AI insight notifications</div><div class="settings-desc">Bedrock analysis ready</div></div><div class="toggle on" onclick="this.classList.toggle('on')"><div class="toggle-knob"></div></div></div>
+              <div class="settings-row"><div><div class="settings-label">Follower milestones</div><div class="settings-desc">Every 500 new followers</div></div><div class="toggle" onclick="this.classList.toggle('on')"><div class="toggle-knob"></div></div></div>
+            </div>
+          </div>
+          <div class="card">
+            <div class="settings-section">
+              <div class="settings-title">Security · AWS Cognito</div>
+              <div class="settings-row"><div><div class="settings-label">Two-factor authentication</div><div class="settings-desc">Authenticator app + SMS</div></div><span class="badge badge-green">Enabled</span></div>
+              <div class="settings-row"><div><div class="settings-label">Session timeout</div><div class="settings-desc">Auto-logout after 30 min</div></div><span class="badge badge-blue">30 min</span></div>
+              <div class="settings-row"><div><div class="settings-label">KMS data encryption</div><div class="settings-desc">AES-256 at rest + in transit</div></div><span class="badge badge-green">Active</span></div>
+              <div class="settings-row"><div><div class="settings-label">CloudTrail audit log</div><div class="settings-desc">All API calls logged</div></div><span class="badge badge-green">Active</span></div>
+            </div>
+          </div>
+          <div class="card">
+            <div class="settings-section">
+              <div class="settings-title">Data &amp; Sync</div>
+              <div class="settings-row"><div><div class="settings-label">Sync frequency</div><div class="settings-desc">AppFlow scheduled runs</div></div><span class="badge badge-blue">Weekly</span></div>
+              <div class="settings-row"><div><div class="settings-label">Data retention</div><div class="settings-desc">S3 Intelligent-Tiering</div></div><span class="badge badge-blue">24 months</span></div>
+              <div class="settings-row"><div><div class="settings-label">S3 versioning</div><div class="settings-desc">Point-in-time recovery</div></div><div class="toggle on" onclick="this.classList.toggle('on')"><div class="toggle-knob"></div></div></div>
+              <div class="settings-row"><div><div class="settings-label">SQS retry on failure</div><div class="settings-desc">Up to 3 retry attempts</div></div><div class="toggle on" onclick="this.classList.toggle('on')"><div class="toggle-knob"></div></div></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div><!-- /main -->
+  </div><!-- /app-body -->
+</div><!-- /app -->
+
+<script>
+/* ── NAV ─────────────────────────────────────── */
+function goView(name, el) {
+  document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
+  const v = document.getElementById('view-'+name);
+  if(v) v.classList.add('active');
+  if(el) el.classList.add('active');
+  else {
+    document.querySelectorAll('.nav-item').forEach(n=>{
+      if(n.textContent.toLowerCase().includes(name.replace(/s$/,''))) n.classList.add('active');
+    });
+  }
+  renderChartsForView(name);
+}
+
+function launchApp() {
+  document.getElementById('login-screen').style.opacity='0';
+  document.getElementById('login-screen').style.transition='opacity .4s';
+  setTimeout(()=>{
+    document.getElementById('login-screen').style.display='none';
+    const app = document.getElementById('app');
+    app.classList.add('visible');
+    setTimeout(()=>{ renderChartsForView('dashboard'); buildHeatmap(); buildFunnel(); },100);
+  },400);
+}
+
+/* ── CHARTS ──────────────────────────────────── */
+const rendered = {};
+
+function renderChartsForView(view) {
+  if(view==='dashboard' && !rendered.dash) { rendered.dash=true; buildDashCharts(); }
+  if(view==='analytics' && !rendered.analytics) { rendered.analytics=true; buildAnalyticsCharts(); }
+}
+
+const COLORS = { ig:'#4A9EF5', li:'#22C78A', fb:'#4267B2', goog:'#F5A623', pur:'#9B7FE8' };
+const GRID = 'rgba(255,255,255,0.05)';
+const TICK = { color:'rgba(255,255,255,0.3)', font:{size:10} };
+const gridOpts = { color:GRID };
+
+function buildDashCharts() {
+  const weeks = ['W1','W2','W3','W4','W5','W6','W7','W8','W9','W10','W11','W12'];
+  new Chart(document.getElementById('c-engagement'),{
+    type:'line',
+    data:{labels:weeks,datasets:[
+      {label:'Instagram',data:[4.1,4.5,4.2,5.1,5.4,5.0,5.8,6.1,5.7,6.4,6.0,6.8],borderColor:COLORS.ig,backgroundColor:'transparent',tension:.4,pointRadius:2,borderWidth:2},
+      {label:'LinkedIn',data:[3.2,3.5,3.8,4.2,3.9,4.5,4.8,4.4,5.1,5.4,5.0,5.6],borderColor:COLORS.li,backgroundColor:'transparent',tension:.4,pointRadius:2,borderWidth:2},
+      {label:'Facebook',data:[2.1,2.3,2.0,1.8,2.2,2.4,2.1,1.9,2.3,2.0,1.8,2.1],borderColor:COLORS.fb,backgroundColor:'transparent',tension:.4,pointRadius:2,borderWidth:2,borderDash:[4,3]}
+    ]},
+    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{y:{ticks:{...TICK,callback:v=>v+'%'},grid:gridOpts},x:{ticks:TICK,grid:{display:false}}}}
+  });
+  new Chart(document.getElementById('c-donut'),{
+    type:'doughnut',
+    data:{labels:['Instagram','LinkedIn','Facebook'],datasets:[{data:[44,31,25],backgroundColor:[COLORS.ig,COLORS.li,COLORS.fb],borderWidth:0,hoverOffset:4}]},
+    options:{responsive:true,maintainAspectRatio:false,cutout:'70%',plugins:{legend:{display:false}}}
+  });
+  new Chart(document.getElementById('c-growth'),{
+    type:'bar',
+    data:{labels:['Nov','Dec','Jan','Feb','Mar','Apr'],datasets:[
+      {label:'Instagram',data:[320,410,380,490,520,640],backgroundColor:COLORS.ig+'AA',borderRadius:4},
+      {label:'LinkedIn',data:[180,220,260,310,340,420],backgroundColor:COLORS.li+'AA',borderRadius:4},
+      {label:'Facebook',data:[80,90,70,100,85,110],backgroundColor:COLORS.fb+'AA',borderRadius:4}
+    ]},
+    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{stacked:false,ticks:TICK,grid:{display:false}},y:{stacked:false,ticks:TICK,grid:gridOpts}}}
+  });
+  new Chart(document.getElementById('c-radar'),{
+    type:'radar',
+    data:{labels:['Reach','Saves','Shares','Comments','Clicks'],datasets:[
+      {label:'Video',data:[88,74,68,55,62],borderColor:COLORS.ig,backgroundColor:COLORS.ig+'22',pointRadius:3,borderWidth:2},
+      {label:'Carousel',data:[64,82,44,72,56],borderColor:COLORS.li,backgroundColor:COLORS.li+'22',pointRadius:3,borderWidth:2},
+      {label:'Static',data:[46,52,36,40,44],borderColor:COLORS.fb,backgroundColor:COLORS.fb+'22',pointRadius:3,borderWidth:2}
+    ]},
+    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{r:{ticks:{color:'rgba(255,255,255,0.2)',font:{size:9},stepSize:25},pointLabels:{color:'rgba(255,255,255,0.5)',font:{size:10}},grid:{color:'rgba(255,255,255,0.08)'},angleLines:{color:'rgba(255,255,255,0.06)'}}}}
+  });
+  new Chart(document.getElementById('c-paidorg'),{
+    type:'line',
+    data:{labels:['Nov','Dec','Jan','Feb','Mar','Apr'],datasets:[
+      {label:'Paid',data:[8,11,9,14,12,16],borderColor:COLORS.pur,backgroundColor:COLORS.pur+'22',fill:true,tension:.4,pointRadius:2,borderWidth:2},
+      {label:'Organic',data:[22,26,28,32,36,42],borderColor:COLORS.li,backgroundColor:COLORS.li+'16',fill:true,tension:.4,pointRadius:2,borderWidth:2}
+    ]},
+    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{ticks:TICK,grid:{display:false}},y:{ticks:{...TICK,callback:v=>v+'K'},grid:gridOpts}}}
+  });
+}
+
+function buildAnalyticsCharts() {
+  const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul (est)','Aug (est)','Sep (est)'];
+  new Chart(document.getElementById('c-forecast'),{
+    type:'line',
+    data:{labels:months,datasets:[
+      {label:'Actual',data:[11200,11800,12500,13100,14000,14820,null,null,null],borderColor:COLORS.ig,backgroundColor:'transparent',tension:.4,pointRadius:3,borderWidth:2},
+      {label:'Forecast',data:[null,null,null,null,null,14820,16100,17400,19200],borderColor:COLORS.pur,backgroundColor:COLORS.pur+'18',fill:true,tension:.4,pointRadius:3,borderWidth:2,borderDash:[5,3]}
+    ]},
+    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{ticks:TICK,grid:{display:false}},y:{ticks:{...TICK,callback:v=>(v/1000).toFixed(1)+'K'},grid:gridOpts}}}
+  });
+  new Chart(document.getElementById('c-quarterly'),{
+    type:'bar',
+    data:{labels:['Q1 2025','Q2 2025','Q3 2025','Q4 2025','Q1 2026'],datasets:[
+      {label:'Eng. Rate %',data:[3.2,3.8,4.1,4.6,5.2],backgroundColor:COLORS.ig+'CC',borderRadius:4},
+      {label:'Reach (10K)',data:[2.1,2.8,3.4,4.2,5.1],backgroundColor:COLORS.li+'CC',borderRadius:4}
+    ]},
+    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{ticks:TICK,grid:{display:false}},y:{ticks:TICK,grid:gridOpts}}}
+  });
+  new Chart(document.getElementById('c-demo'),{
+    type:'bar',
+    data:{labels:['18–24','25–34','35–44','45–54','55+'],datasets:[
+      {label:'Female',data:[28,36,22,10,4],backgroundColor:'#D4537E99',borderRadius:3},
+      {label:'Male',data:[22,31,24,14,6],backgroundColor:COLORS.ig+'99',borderRadius:3}
+    ]},
+    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{ticks:TICK,grid:{display:false}},y:{ticks:{...TICK,callback:v=>v+'%'},grid:gridOpts}}}
+  });
+  new Chart(document.getElementById('c-content'),{
+    type:'bar',
+    data:{labels:['Video reels','Carousels','Event posts','Alumni spotlights','Announcements','Static graphics'],
+      datasets:[{label:'Avg Eng Rate',data:[8.4,6.2,5.8,5.1,3.4,2.9],backgroundColor:[COLORS.ig,COLORS.li,COLORS.pur,COLORS.goog,COLORS.fb,'#666'],borderRadius:4}]
+    },
+    options:{indexAxis:'y',responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{ticks:{...TICK,callback:v=>v+'%'},grid:gridOpts},y:{ticks:TICK,grid:{display:false}}}}
+  });
+}
+
+function buildHeatmap() {
+  const el = document.getElementById('heatmap-el');
+  const days=['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
+  const hours=['6a','9a','12p','3p','6p','9p'];
+  const data=[[1,2,3,3,5,4,2],[2,3,5,6,7,4,3],[2,3,4,5,8,7,4],[2,3,5,7,9,6,3],[1,2,3,5,7,8,5],[2,3,3,2,4,7,5]];
+  let h='<div class="heatmap"><div class="hm-label"></div>';
+  days.forEach(d=>h+=`<div class="hm-head">${d}</div>`);
+  hours.forEach((hr,hi)=>{
+    h+=`<div class="hm-label">${hr}</div>`;
+    days.forEach((_,di)=>{
+      const v=data[hi][di];
+      const a=(0.08+v/9*0.88).toFixed(2);
+      h+=`<div class="hm-cell" style="background:rgba(74,158,245,${a})" title="${days[di]} ${hr}: intensity ${v}/9"></div>`;
+    });
+  });
+  h+='</div>';
+  el.innerHTML=h;
+}
+
+function buildFunnel() {
+  const el = document.getElementById('funnel-list');
+  const funnel=[
+    {l:'Impressions',v:'84.3K',pct:100,c:'#4A9EF5'},
+    {l:'Profile Views',v:'18.2K',pct:72,c:'#9B7FE8'},
+    {l:'Link Clicks',v:'2,190',pct:46,c:'#22C78A'},
+    {l:'Leads',v:'312',pct:26,c:'#F5A623'},
+    {l:'Conversions',v:'48',pct:12,c:'#E8212A'}
+  ];
+  el.innerHTML=funnel.map(f=>`
+    <div class="funnel-row">
+      <div class="funnel-label">${f.l}</div>
+      <div class="funnel-bar" style="width:${f.pct}%;background:${f.c}14;border-color:${f.c};color:${f.c}">${f.l}</div>
+      <div class="funnel-num">${f.v}</div>
+    </div>`).join('');
+}
+</script>
+</body>
+</html>
